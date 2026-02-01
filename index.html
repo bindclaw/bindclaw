@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bind Clan</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            min-height: 100svh;
+            background-image: url('fondo1.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .container {
+            position: relative;
+            width: 90vw; 
+            max-width: 600px;
+            height: 450px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .envelope-img {
+            width: 100%;
+            height: auto;
+            position: absolute;
+            bottom: 0;
+            z-index: 10;
+            transition: all 0.5s ease;
+            cursor: pointer;
+        }
+        .container.open .envelope-img { pointer-events: none; }
+
+        .letter {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%) translateY(0);
+            width: 80%;
+            height: 350px;
+            background-image: url('carta-doblada.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center bottom;
+            opacity: 0;
+            z-index: 5;
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: zoom-in;
+            -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 95%);
+            mask-image: linear-gradient(to bottom, black 60%, transparent 95%);
+        }
+        .container.open .letter {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-120px);
+            z-index: 15;
+        }
+
+        .receipt {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 350px; 
+            background-image: url('ticket.png'); 
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0;
+            z-index: 4;
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: zoom-in;
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 85%);
+        }
+        .container.open .receipt {
+            opacity: 1;
+            z-index: 25;
+            transform: translateY(-135px) translateX(100px) rotate(6deg);
+            pointer-events: auto;
+            -webkit-mask-image: none;
+        }
+
+        .catalog-portada {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 280px; 
+            background-image: url('catalogo-portada.jpg'); 
+            background-size: cover;
+            background-position: center;
+            border-radius: 5px;
+            opacity: 0;
+            z-index: 4;
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 85%);
+        }
+        .container.open .catalog-portada {
+            opacity: 1;
+            z-index: 26;
+            transform: translateY(-130px) translateX(-240px) rotate(-6deg);
+            -webkit-mask-image: none;
+        }
+
+        #btn-catalogo {
+            display: none;
+            padding: 8px 12px;
+            background: white;
+            border: 2px solid #fac7d5;
+            border-radius: 15px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: bold;
+            font-size: 10px;
+            color: #db7093;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .container.open #btn-catalogo { display: block; }
+
+        .receipt.zoom-receipt, .letter.unfold {
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%) !important;
+            width: 95vw !important;
+            height: 90vh !important;
+            max-width: 800px !important;
+            z-index: 9999 !important; 
+            box-shadow: 0 0 100px rgba(0,0,0,0.7); 
+            cursor: zoom-out;
+            background-size: contain !important;
+            -webkit-mask-image: none !important;
+        }
+
+        .receipt-links { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .btn-link { position: absolute; left: 12%; width: 76%; height: 9%; text-decoration: none; z-index: 10001; }
+        .link-ig { top: 22.5%; } 
+        .link-etsy { top: 31.5%; } 
+        .link-vinted { top: 41.5%; }
+
+        .flipbook-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        .flipbook-content { width: 95%; max-width: 1000px; position: relative; }
+        .close-flipbook { position: absolute; top: -50px; right: 0; color: white; font-size: 40px; cursor: pointer; }
+
+        @media (max-width: 768px) {
+            body {
+                background-image: url('fondo-movil.jpg'); 
+                background-attachment: scroll;
+                background-position: center top;
+            }
+
+            .container { height: 350px; }
+            .letter { width: 90%; height: 260px; }
+            .receipt { width: 140px; height: 250px; }
+            .catalog-portada { width: 130px; height: 180px; }
+
+            .container.open .letter {
+                transform: translateX(-50%) translateY(-80px);
+            }
+
+            .container.open .receipt {
+                transform: translateY(-110px) translateX(50px) rotate(6deg);
+            }
+
+            .container.open .catalog-portada {
+                transform: translateY(-100px) translateX(-180px) rotate(-6deg);
+            }
+
+            #btn-catalogo { padding: 6px 10px; font-size: 8px; }
+        }
+
+        @media (min-width: 769px) {
+            body { background-attachment: fixed; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="box">
+        <img src="sobre-cerrado.png" id="envelope" class="envelope-img" onclick="toggleOpen()">
+        <div class="letter" id="laCarta"></div>
+
+        <div class="receipt" id="elTicket">
+            <div class="receipt-links">
+                <a href="https://instagram.com/bindclaw" target="_blank" class="btn-link link-ig"></a>
+                <a href="https://etsy.com/shop/bindclaw" target="_blank" class="btn-link link-etsy"></a>
+                <a href="https://www.vinted.es/member/3133209527" target="_blank" class="btn-link link-vinted"></a>
+            </div>
+        </div>
+
+        <div class="catalog-portada" id="laPortada">
+            <button id="btn-catalogo" onclick="openFlipbook(event)">VER CATÁLOGO</button>
+        </div>
+    </div>
+
+    <div id="flipbookOverlay" class="flipbook-overlay">
+        <div class="flipbook-content">
+            <span class="close-flipbook" onclick="closeFlipbook()">&times;</span>
+            <div style="position:relative;padding-top:max(60%,324px);width:100%;height:0;">
+                <iframe style="position:absolute;border:none;width:100%;height:100%;left:0;top:0;" src="https://online.fliphtml5.com/BOBO6896/REV-9yBA/" title="REV" seamless scrolling="no" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const box = document.getElementById('box');
+        const img = document.getElementById('envelope');
+        const carta = document.getElementById('laCarta');
+        const ticket = document.getElementById('elTicket');
+        const portada = document.getElementById('laPortada');
+
+        function toggleOpen() {
+            box.classList.toggle('open');
+            if (box.classList.contains('open')) {
+                img.src = 'sobre-abierto.png';
+                ticket.style.transitionDelay = "0.1s";
+                portada.style.transitionDelay = "0.1s";
+            } else {
+                img.src = 'sobre-cerrado.png';
+                ticket.style.transitionDelay = "0s";
+                portada.style.transitionDelay = "0s";
+                carta.classList.remove('unfold');
+                ticket.classList.remove('zoom-receipt');
+            }
+        }
+
+        function openFlipbook(e) {
+            e.stopPropagation();
+            document.getElementById('flipbookOverlay').style.display = 'flex';
+        }
+
+        function closeFlipbook() {
+            document.getElementById('flipbookOverlay').style.display = 'none';
+        }
+
+        carta.addEventListener('click', (e) => {
+            if (box.classList.contains('open')) {
+                e.stopPropagation();
+                carta.classList.toggle('unfold');
+                ticket.classList.remove('zoom-receipt');
+            }
+        });
+
+        ticket.addEventListener('click', (e) => {
+            if (e.target.classList.contains('btn-link')) return;
+            if (box.classList.contains('open')) {
+                e.stopPropagation();
+                ticket.classList.toggle('zoom-receipt');
+                carta.classList.remove('unfold');
+            }
+        });
+    </script>
+</body>
+</html>
